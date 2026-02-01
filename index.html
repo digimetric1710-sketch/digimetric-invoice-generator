@@ -15,11 +15,24 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
+    <!-- Google Fonts: Noto Sans Myanmar -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
     <!-- HTML2Canvas & JSPDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <style>
+        body {
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        /* Apply Myanmar font specifically when needed */
+        .font-mm {
+            font-family: 'Noto Sans Myanmar', sans-serif !important;
+        }
+
         @media print {
             .no-print { display: none !important; }
             .print-only { display: block !important; }
@@ -44,7 +57,7 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
-        // --- Internal Icons Components (Replaces Lucide React Library to fix CDN errors) ---
+        // --- Internal Icons Components ---
         const IconWrapper = ({ children, size = 24, className = "" }) => (
             <svg 
                 xmlns="http://www.w3.org/2000/svg" 
@@ -454,6 +467,13 @@
 
                 const inputs = clonedDoc.querySelectorAll('input, textarea, select');
                 
+                // Force Myanmar font if language is Burmese
+                if (language === 'mm') {
+                    clonedDoc.body.classList.add('font-mm');
+                    const allElements = clonedDoc.querySelectorAll('*');
+                    allElements.forEach(el => el.style.fontFamily = "'Noto Sans Myanmar', sans-serif");
+                }
+
                 inputs.forEach(input => {
                     if (input.type === 'text' || input.type === 'number' || input.type === 'email' || input.type === 'date') {
                         const parent = input.parentElement;
@@ -462,7 +482,7 @@
                         textDiv.textContent = input.value;
                         
                         const style = window.getComputedStyle(input);
-                        textDiv.style.fontFamily = style.fontFamily;
+                        textDiv.style.fontFamily = language === 'mm' ? "'Noto Sans Myanmar', sans-serif" : style.fontFamily;
                         textDiv.style.fontSize = style.fontSize;
                         textDiv.style.fontWeight = style.fontWeight;
                         textDiv.style.color = style.color;
@@ -490,7 +510,7 @@
                         const textDiv = clonedDoc.createElement('div');
                         textDiv.textContent = input.value;
                         const style = window.getComputedStyle(input);
-                        textDiv.style.fontFamily = style.fontFamily;
+                        textDiv.style.fontFamily = language === 'mm' ? "'Noto Sans Myanmar', sans-serif" : style.fontFamily;
                         textDiv.style.fontSize = style.fontSize;
                         textDiv.style.whiteSpace = 'pre-wrap';
                         textDiv.style.color = style.color;
@@ -519,6 +539,8 @@
                         scale: 2, 
                         backgroundColor: '#ffffff',
                         useCORS: true,
+                        // Force desktop viewport width to ensure A4/Desktop layout
+                        windowWidth: 1024,
                         onclone: prepareCloneForCapture
                     });
                     
@@ -541,6 +563,8 @@
                         scale: 2,
                         backgroundColor: '#ffffff',
                         useCORS: true,
+                        // Force desktop viewport width to ensure A4/Desktop layout
+                        windowWidth: 1024,
                         onclone: prepareCloneForCapture
                     });
 
@@ -576,7 +600,7 @@
             };
 
             return (
-                <div className="min-h-screen bg-gray-100 font-sans text-gray-800">
+                <div className={`min-h-screen bg-gray-100 font-sans text-gray-800 ${language === 'mm' ? 'font-mm' : ''}`}>
                     {/* Header Navigation (No Print) */}
                     <header className="no-print bg-white shadow-sm sticky top-0 z-20 border-b border-gray-200">
                         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
